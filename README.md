@@ -1,4 +1,4 @@
-# Xiomi_Hygrothermo
+# Mijia Temperature Bluetooth
 Home-assistant sensor platform for Xiaomi Mijia BT temperature and humidity sensor
 
 ## Usage
