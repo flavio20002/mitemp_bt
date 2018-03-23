@@ -1,8 +1,8 @@
 """
-Support for Xiaomi Mi Flora BLE plant sensor.
+Support for Xiaomi Mijia Bluetooth Termometer.
 
 For more details about this platform, please refer to the documentation at
-https://home-assistant.io/components/sensor.miflora/
+https://home-assistant.io/components/sensor.mitemp_bt/
 """
 import logging
 import urllib.request
@@ -25,9 +25,6 @@ from homeassistant.const import (
     CONF_FORCE_UPDATE, CONF_MONITORED_CONDITIONS, CONF_NAME, CONF_MAC
 )
 
-
-REQUIREMENTS = ['miflora==0.3.0']
-
 _LOGGER = logging.getLogger(__name__)
 LOCK = Lock()
 
@@ -40,7 +37,7 @@ CONF_TIMEOUT = 'timeout'
 DEFAULT_ADAPTER = 'hci0'
 DEFAULT_UPDATE_INTERVAL = 1200
 DEFAULT_FORCE_UPDATE = False
-DEFAULT_MEDIAN = 3
+DEFAULT_MEDIAN = 1
 DEFAULT_NAME = 'Mi Temp Bluetooth'
 DEFAULT_RETRIES = 2
 DEFAULT_TIMEOUT = 10
