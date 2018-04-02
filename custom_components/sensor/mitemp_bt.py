@@ -339,7 +339,7 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
 
 
 class MiTempBtSensor(Entity):
-    """Implementing the MiFlora sensor."""
+    """Implementing the MiTempBtSensor sensor."""
 
     def __init__(self, poller, parameter, name, unit, force_update, median):
         """Initialize the sensor."""
@@ -392,7 +392,7 @@ class MiTempBtSensor(Entity):
             _LOGGER.debug("%s = %s", self.name, data)
             self.data.append(data)
         else:
-            _LOGGER.info("Did not receive any data from Mi Flora sensor %s",
+            _LOGGER.info("Did not receive any data from MiTempBt sensor %s",
                          self.name)
             # Remove old data from median list or set sensor value to None
             # if no data is available anymore

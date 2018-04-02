@@ -9,6 +9,7 @@ sensor:
     mac: 'xx:xx:xx:xx:xx:xx'
     force_update: false
     median: 1
+    cache_value: 1200
     monitored_conditions:
       - temperature
       - humidity
@@ -17,4 +18,4 @@ sensor:
 
 mac is required.
 
-default "scan" isterval is every 1200 seconds.
+scan interval is set by cache_value and has a default of 1200 seconds.
