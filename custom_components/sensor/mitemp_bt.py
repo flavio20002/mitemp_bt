@@ -44,12 +44,14 @@ DEFAULT_TIMEOUT = 10
 
 MI_TEMPERATURE = "temperature"
 MI_HUMIDITY = "humidity"
+MI_BATTERY = "battery"
 
 
 # Sensor types are defined like: Name, units
 SENSOR_TYPES = {
     'temperature': ['Temperatura', '°C'],
-    'humidity': ['Umidità', '%']
+    'humidity': ['Umidità', '%'],
+    'battery': ['Batteria', '%'],
 }
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
@@ -203,6 +205,8 @@ class MijiaPoller(object):
         self.retries = retries
         self.ble_timeout = 10
         self.lock = Lock()
+        self._firmware_version = None
+        self._battery_level = None
         self._bat_last_read = datetime.now()
 
     def name(self):
@@ -216,6 +220,12 @@ class MijiaPoller(object):
         return ''.join(chr(n) for n in name)
 
     def fill_cache(self):
+        firmware_version = self.firmware_version()
+        if not firmware_version:
+            # If a sensor doesn't work, wait 5 minutes before retrying
+            self._last_read = datetime.now() - self._cache_timeout + \
+                timedelta(seconds=300)
+            return
 
         self._cache = write_readnotif_ble(self._mac, "0x10", "0100", retries=self.retries, timeout=self.ble_timeout, adapter=self._adapter)
 		
@@ -226,6 +236,32 @@ class MijiaPoller(object):
             # If a sensor doesn't work, wait 5 minutes before retrying
             self._last_read = datetime.now() - self._cache_timeout + \
                 timedelta(seconds=300)
+
+    def battery_level(self):
+        """
+        Return the battery level.
+        """
+        if (self._battery_level is None) or \
+                (datetime.now() - timedelta(hours=1) > self._bat_last_read):
+            self._bat_last_read = datetime.now()
+            res = read_ble(self._mac, '0x18', retries=self.retries, adapter=self._adapter)
+            if res is None:
+                self._battery_level = 0
+            else:
+                self._battery_level = res[0]
+        return self._battery_level
+
+    def firmware_version(self):
+        """ Return the firmware version. """
+        if (self._firmware_version is None) or \
+                (datetime.now() - timedelta(hours=24) > self._fw_last_read):
+            self._fw_last_read = datetime.now()
+            res = read_ble(self._mac, '0x24', retries=self.retries, adapter=self._adapter)
+            if res is None:
+                self._firmware_version = None
+            else:
+                self._firmware_version = "".join(map(chr, res))
+        return self._firmware_version
 
     def parameter_value(self, parameter, read_cached=True):
         """
@@ -238,6 +274,10 @@ class MijiaPoller(object):
         """
 
         _LOGGER.debug("Call to parameter_value (%s)",parameter)
+		
+        # Special handling for battery attribute
+        if parameter == MI_BATTERY:
+            return self.battery_level()
 
         # Use the lock to make sure the cache isn't updated multiple times
         with self.lock:
