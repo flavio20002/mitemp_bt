@@ -111,12 +111,12 @@ def write_readnotif_ble(mac, handle, value, retries=3, timeout=20, adapter='hci0
         result = result.decode("utf-8").strip(' \n\t')
         _LOGGER.debug("Got %s from gatttool", result)
         # Parse the output
-        res = re.search("( [0-9a-fA-F][0-9a-fA-F])+", result)
+        res = re.search("value: ([0-9a-fA-F ]+)", result)
         if res:
             _LOGGER.debug(
                 "Exit write_readnotif_ble with result (%s)", current_thread())
                 
-            return [int(x, 16) for x in res.group(0).split()]
+            return [int(x, 16) for x in res.group(1).split()]
 
         attempt += 1
         _LOGGER.debug("Waiting for %s seconds before retrying", delay)
